@@ -1,0 +1,23 @@
+.otp-input {
+    width: 50px !important;
+    margin-right: 10px;
+    border-bottom: 2px solid #000;
+    text-align: center;
+    font-size: 1.5rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.otp-input:focus {
+    border-bottom: 3px solid #24B24B;
+}
+
+.otp-container{
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media only screen and (max-width: 450px) {
+    .otp-input {
+        width: 35px !important;
+    }
+}
