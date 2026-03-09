@@ -15,7 +15,7 @@ export default function AdminLayout() {
       <AdminHeader />
       <MobileHeader setIsVisible={setIsVisible} isVisible={isVisible} />
 
-      <AdminSidebar setIsVisible={setIsVisible} isVisible={isVisible} />
+      <AdminSidebar />
       <MobileSidebar setIsVisible={setIsVisible} isVisible={isVisible} />
       <section className="mt-20 md:ml-60 bg-gray-50 dark:bg-gray-800 w-full p-5 rounded-md duration-300">
         <Outlet />

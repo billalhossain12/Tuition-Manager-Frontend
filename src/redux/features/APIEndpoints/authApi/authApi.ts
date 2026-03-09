@@ -9,6 +9,13 @@ const authApi = baseApi.injectEndpoints({
         body: userInfo,
       }),
     }),
+    register: builder.mutation({
+      query: (userInfo) => ({
+        url: "/users/create-tutor",
+        method: "POST",
+        body: userInfo,
+      }),
+    }),
 
     logoutUser: builder.mutation({
       query: () => ({
@@ -49,4 +56,5 @@ export const {
   useSendOTPMutation,
   useVerifyOTPMutation,
   useResetPasswordMutation,
+  useRegisterMutation
 } = authApi;

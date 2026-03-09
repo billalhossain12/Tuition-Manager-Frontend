@@ -1,6 +1,6 @@
-export const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  // Prevent 'e' sign
-  if (event.key === "e") {
-    event.preventDefault();
-  }
+import { KeyboardEvent } from "react";
+
+
+export const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+  event.currentTarget.blur();
 };

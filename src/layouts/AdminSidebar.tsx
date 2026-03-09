@@ -24,7 +24,7 @@ export default function AdminSidebar() {
       return;
     }
     dispatch(logout());
-    navigate("/admin-login");
+    navigate("/");
     toast.success("You are successfully logged out.");
   };
 

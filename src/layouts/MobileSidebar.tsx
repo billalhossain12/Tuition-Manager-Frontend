@@ -37,7 +37,7 @@ export default function MobileSidebar({
       return;
     }
     dispatch(logout());
-    navigate("/admin-login");
+    navigate("/");
     toast.success("You are successfully logged out.");
   };
 

@@ -7,7 +7,7 @@ export default function PrivateRoute({ children }: { children: ReactChild }) {
   const token = useAppSelector(useCurrentToken);
 
   if (!token) {
-    return <Navigate to="/admin-login" replace={true} />;
+    return <Navigate to="/" replace={true} />;
   }
 
   return children;
