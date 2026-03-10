@@ -7,6 +7,8 @@ import { showApiErrorToast } from "../../../../utils/showApiErrorToast";
 import { toast } from "react-toastify";
 import { useGetMyStudentsQuery } from "../../../../redux/features/APIEndpoints/studentsApi/studentsApi";
 import { Student } from "../../types/student";
+import { TimePicker } from "antd";
+import dayjs from "dayjs";
 
 const weekdays = [
   "Saturday",
@@ -17,6 +19,33 @@ const weekdays = [
   "Thursday",
   "Friday",
 ];
+
+const validateWeeklySchedule = (schedules: WeeklySchedule[]) => {
+  const usedDays = new Set<string>();
+
+  for (const schedule of schedules) {
+    const { day, startTime, endTime } = schedule;
+
+    if (!day || !startTime || !endTime) {
+      return "All schedule fields are required";
+    }
+
+    if (usedDays.has(day)) {
+      return `Duplicate schedule for ${day}`;
+    }
+
+    usedDays.add(day);
+
+    const start = dayjs(startTime, "HH:mm").valueOf();
+    const end = dayjs(endTime, "HH:mm").valueOf();
+
+    if (start >= end) {
+      return `End time must be after start time on ${day}`;
+    }
+  }
+
+  return null;
+};
 
 const CreateRoutine = () => {
   const navigate = useNavigate();
@@ -40,7 +69,11 @@ const CreateRoutine = () => {
   const removeSchedule = (index: number) => {
     const updated = [...form.weeklySchedule];
     updated.splice(index, 1);
-    setForm({ ...form, weeklySchedule: updated });
+
+    setForm({
+      ...form,
+      weeklySchedule: updated,
+    });
   };
 
   const handleScheduleChange = (
@@ -49,14 +82,23 @@ const CreateRoutine = () => {
     value: string,
   ) => {
     const updated = [...form.weeklySchedule];
-    updated[index][field] = value;
-    setForm({ ...form, weeklySchedule: updated });
+
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+
+    setForm({
+      ...form,
+      weeklySchedule: updated,
+    });
   };
 
   const [
     createRoutine,
     { isLoading: isCreating, isError: isCreateError, error: createError },
   ] = useCreateRoutineMutation();
+
   const { data: students } = useGetMyStudentsQuery(undefined);
 
   useEffect(() => {
@@ -67,10 +109,20 @@ const CreateRoutine = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(form);
-    await createRoutine(form).unwrap();
-    toast.success("Routine is created successfully!");
-    navigate(-1);
+    const error = validateWeeklySchedule(form.weeklySchedule);
+
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
+    try {
+      await createRoutine(form).unwrap();
+      toast.success("Routine created successfully!");
+      navigate(-1);
+    } catch (err) {
+      // showApiErrorToast(err);
+    }
   };
 
   return (
@@ -93,6 +145,7 @@ const CreateRoutine = () => {
               className="w-full p-3 rounded-lg border dark:bg-neutral-800"
             >
               <option value="">Select student</option>
+
               {students?.map((student: Student) => (
                 <option key={student._id} value={student._id}>
                   {student.name}
@@ -135,40 +188,69 @@ const CreateRoutine = () => {
                   className="grid md:grid-cols-4 gap-3 items-center"
                 >
                   {/* Day */}
-                  <select
-                    value={schedule.day}
-                    onChange={(e) =>
-                      handleScheduleChange(index, "day", e.target.value)
-                    }
-                    className="p-2 border rounded dark:bg-neutral-800"
-                  >
-                    <option value="">Day</option>
-                    {weekdays.map((day) => (
-                      <option key={day}>{day}</option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block">Day</label>
+
+                    <select
+                      value={schedule.day}
+                      onChange={(e) =>
+                        handleScheduleChange(index, "day", e.target.value)
+                      }
+                      className="p-2 border rounded dark:bg-neutral-800 w-full"
+                    >
+                      <option value="">Select</option>
+
+                      {weekdays.map((day) => (
+                        <option key={day} value={day}>
+                          {day}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
                   {/* Start Time */}
-                  <input
-                    type="text"
-                    placeholder="Start Time"
-                    value={schedule.startTime}
-                    onChange={(e) =>
-                      handleScheduleChange(index, "startTime", e.target.value)
-                    }
-                    className="p-2 border rounded dark:bg-neutral-800"
-                  />
+                  <div>
+                    <label>Start Time</label>
+
+                    <TimePicker
+                      format="hh:mm A"
+                      style={{ height: 40, width: "100%" }}
+                      value={
+                        schedule.startTime
+                          ? dayjs(schedule.startTime, "HH:mm")
+                          : null
+                      }
+                      onChange={(time) => {
+                        handleScheduleChange(
+                          index,
+                          "startTime",
+                          time ? dayjs(time).format("HH:mm") : "",
+                        );
+                      }}
+                    />
+                  </div>
 
                   {/* End Time */}
-                  <input
-                    type="text"
-                    placeholder="End Time"
-                    value={schedule.endTime}
-                    onChange={(e) =>
-                      handleScheduleChange(index, "endTime", e.target.value)
-                    }
-                    className="p-2 border rounded dark:bg-neutral-800"
-                  />
+                  <div>
+                    <label>End Time</label>
+
+                    <TimePicker
+                      format="hh:mm A"
+                      style={{ height: 40, width: "100%" }}
+                      value={
+                        schedule.endTime
+                          ? dayjs(schedule.endTime, "HH:mm")
+                          : null
+                      }
+                      onChange={(time) => {
+                        handleScheduleChange(
+                          index,
+                          "endTime",
+                          time ? dayjs(time).format("HH:mm") : "",
+                        );
+                      }}
+                    />
+                  </div>
 
                   {/* Delete */}
                   <button
@@ -188,7 +270,7 @@ const CreateRoutine = () => {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="w-1/2 py-3 rounded-lg border border-gray-300 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-800"
+              className="w-1/2 py-3 rounded-lg border border-gray-300 dark:border-neutral-700"
             >
               Cancel
             </button>

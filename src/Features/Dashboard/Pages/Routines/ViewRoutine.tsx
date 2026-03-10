@@ -1,6 +1,5 @@
 import { Icon } from "@iconify/react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useGetMyRoutineQuery } from "../../../../redux/features/APIEndpoints/routinesApi/routinesApi";
 
 interface WeeklySchedule {

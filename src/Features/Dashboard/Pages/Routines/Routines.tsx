@@ -7,6 +7,7 @@ import {
   useGetMyRoutinesQuery,
 } from "../../../../redux/features/APIEndpoints/routinesApi/routinesApi";
 import { showApiErrorToast } from "../../../../utils/showApiErrorToast";
+import dayjs from "dayjs";
 
 const Routines = () => {
   const [deletingId, setDeletingId] = useState<string | boolean>(false);
@@ -80,7 +81,7 @@ const Routines = () => {
                     </p>
 
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {schedule.startTime} - {schedule.endTime}
+                      {dayjs(schedule.startTime, "HH:mm").format("hh:mm A")} - {dayjs(schedule.endTime, "HH:mm").format("hh:mm A")}
                     </p>
 
                     <p className="text-sm text-gray-500 dark:text-gray-400">
