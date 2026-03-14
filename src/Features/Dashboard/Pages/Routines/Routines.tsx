@@ -8,6 +8,19 @@ import {
 } from "../../../../redux/features/APIEndpoints/routinesApi/routinesApi";
 import { showApiErrorToast } from "../../../../utils/showApiErrorToast";
 import dayjs from "dayjs";
+import AttendanceNoteModal from "./AttendanceNoteModal";
+import {
+  useCreateAttendanceMutation,
+  useGetMyTodayAttendancesQuery,
+} from "../../../../redux/features/APIEndpoints/attendanceApi/attendanceApi";
+import { toast } from "react-toastify";
+
+// Types
+interface Attendance {
+  routineId: string;
+  status: "present" | "absent";
+  note?: string;
+}
 
 const Routines = () => {
   const [deletingId, setDeletingId] = useState<string | boolean>(false);
@@ -32,6 +45,20 @@ const Routines = () => {
   };
 
   // New Addition
+  const [
+    createAttendance,
+    {
+      isLoading: isAttending,
+      isError: isAttendingError,
+      error: attendingError,
+    },
+  ] = useCreateAttendanceMutation();
+  useEffect(() => {
+    if (!isAttending && isAttendingError && attendingError) {
+      showApiErrorToast(attendingError);
+    }
+  }, [isAttending, isAttendingError, attendingError]);
+
   const [todayRoutines, setTodayRoutines] = useState<Routine[]>([]);
   const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
 
@@ -52,6 +79,44 @@ const Routines = () => {
     "Saturday",
   ];
 
+  //  Attendance
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedRoutine, setSelectedRoutine] = useState<any>(null);
+
+  const openAttendanceModal = (routine: any) => {
+    setSelectedRoutine(routine);
+    setOpenModal(true);
+  };
+
+  const submitAttendance = async (data: any) => {
+    try {
+      const saved = await createAttendance(data).unwrap();
+      toast.success("Attendance created successfully!");
+      setAttendanceMap((prev) => ({
+        ...prev,
+        [saved.data.routineId]: saved.data,
+      }));
+    } catch (err) {
+      // showApiErrorToast(err);
+    }
+  };
+
+  // Todays Routine
+  const [attendanceMap, setAttendanceMap] = useState<
+    Record<string, Attendance>
+  >({});
+  const { data, isLoading: isLoadingTodayAttendances } =
+    useGetMyTodayAttendancesQuery(undefined);
+
+  useEffect(() => {
+    const map: Record<string, Attendance> = {};
+    data?.forEach((item: any) => {
+      map[item.routineId] = item;
+    });
+
+    setAttendanceMap(map);
+  }, [data, isLoadingTodayAttendances]);
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-black text-black dark:text-white">
       {/* ================= TODAY'S CLASSES ================= */}
@@ -71,30 +136,72 @@ const Routines = () => {
             {todayRoutines?.map((routine) =>
               routine.weeklySchedule
                 .filter((s) => s.day === today)
-                .map((schedule, index) => (
-                  <div
-                    key={index}
-                    className="border dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
-                  >
-                    <p className="font-semibold text-lg dark:text-white">
-                      {routine.studentId?.name || "Unknown"}
-                    </p>
+                .map((schedule, index) => {
+                  // Get attendance for this specific routine
+                  const currentRoutineAttendance = attendanceMap[routine._id];
 
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {dayjs(schedule.startTime, "HH:mm").format("hh:mm A")} - {dayjs(schedule.endTime, "HH:mm").format("hh:mm A")}
-                    </p>
+                  return (
+                    <div
+                      key={index}
+                      className="border dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+                    >
+                      <p className="font-semibold text-lg dark:text-white">
+                        {routine.studentId?.name || "Unknown"}
+                      </p>
 
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {routine.studentId?.subject}
-                    </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {dayjs(schedule.startTime, "HH:mm").format("hh:mm A")} -{" "}
+                        {dayjs(schedule.endTime, "HH:mm").format("hh:mm A")}
+                      </p>
 
-                    <button className="mt-3 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm">
-                      Mark Attendance
-                    </button>
-                  </div>
-                )),
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {routine.studentId?.subject}
+                      </p>
+
+                      {currentRoutineAttendance ? (
+                        <span
+                          className={`px-2 py-1 text-xs rounded inline-block cursor-pointer mt-2 ${
+                            currentRoutineAttendance.status === "present"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                          onClick={() => openAttendanceModal(routine)}
+                        >
+                          {currentRoutineAttendance.status === "present"
+                            ? "✔ Present"
+                            : "✖ Absent"}
+                          {currentRoutineAttendance.note && (
+                            <span className="ml-1 text-xs opacity-75">
+                              (Note: {currentRoutineAttendance.note})
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => openAttendanceModal(routine)}
+                          className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors mt-2"
+                          disabled={isAttending}
+                        >
+                          {isAttending ? "Processing..." : "Mark Attendance"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                }),
             )}
           </div>
+        )}
+
+        {selectedRoutine && (
+          <AttendanceNoteModal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            routineId={selectedRoutine._id}
+            studentId={selectedRoutine.studentId._id}
+            studentName={selectedRoutine?.studentId?.name}
+            isAttending={isAttending}
+            onSubmit={submitAttendance}
+          />
         )}
       </section>
 
@@ -132,7 +239,11 @@ const Routines = () => {
                         <div key={index} className="text-sm dark:text-gray-300">
                           {routine.studentId?.name}
                           <span className="text-gray-500 ml-1">
-                            ({schedule?.startTime})
+                            (
+                            {dayjs(schedule?.startTime, "HH:mm").format(
+                              "hh:mm A",
+                            )}
+                            )
                           </span>
                         </div>
                       );
@@ -158,7 +269,8 @@ const Routines = () => {
             to="create"
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
           >
-            <Icon icon="mdi:plus" width="20" />Create Routine
+            <Icon icon="mdi:plus" width="20" />
+            Create Routine
           </Link>
         </div>
 
@@ -188,7 +300,19 @@ const Routines = () => {
                   </td>
 
                   <td className="text-gray-600 dark:text-gray-300">
-                    {routine.weeklySchedule.map((s) => s.day).join(", ")}
+                    {routine.weeklySchedule.map((s, idx: number) => {
+                      return (
+                        <div
+                          key={`${routine._id}-${s.day}-${idx}`}
+                          className="my-2"
+                        >
+                          <span className="mr-1">{s.day}</span>
+                          <span>
+                            ({dayjs(s.startTime, "HH:mm").format("hh:mm A")})
+                          </span>
+                        </div>
+                      );
+                    })}
                   </td>
 
                   <td className="flex gap-2 py-2">

@@ -28,22 +28,14 @@ const EditRoutine = () => {
   const { data, isLoading } = useGetMyRoutineQuery(id!);
   const routine: Routine = data;
 
-  const [
-    updateRoutine,
-    { isLoading: isUpdating, isError: isUpdatingError, error },
-  ] = useUpdateMyRoutineMutation();
+  const [updateRoutine, { isLoading: isUpdating }] =
+    useUpdateMyRoutineMutation();
 
   const [form, setForm] = useState<RoutineForm>({
     studentId: "",
     startDate: "",
     weeklySchedule: [],
   });
-
-  useEffect(() => {
-    if (!isUpdating && isUpdatingError && error) {
-      showApiErrorToast(error);
-    }
-  }, [isUpdating, isUpdatingError, error]);
 
   useEffect(() => {
     if (routine?._id) {
@@ -112,27 +104,21 @@ const EditRoutine = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-black flex justify-center">
       <div className="w-full max-w-3xl bg-white dark:bg-neutral-900 rounded-xl shadow p-6">
-        <h1 className="text-2xl font-bold text-green-600 mb-6">
-          Edit Routine
-        </h1>
+        <h1 className="text-2xl font-bold text-green-600 mb-6">Edit Routine</h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Start Date */}
           <input
             type="date"
             value={dayjs(form.startDate).format("YYYY-MM-DD")}
-            onChange={(e) =>
-              setForm({ ...form, startDate: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, startDate: e.target.value })}
             className="w-full p-3 border rounded-lg dark:bg-neutral-800"
           />
 
           {/* Weekly Schedule */}
           <div>
             <div className="flex justify-between mb-3">
-              <h2 className="font-semibold text-green-600">
-                Weekly Schedule
-              </h2>
+              <h2 className="font-semibold text-green-600">Weekly Schedule</h2>
 
               <button
                 type="button"
@@ -157,11 +143,7 @@ const EditRoutine = () => {
                     <select
                       value={schedule.day}
                       onChange={(e) =>
-                        handleScheduleChange(
-                          index,
-                          "day",
-                          e.target.value,
-                        )
+                        handleScheduleChange(index, "day", e.target.value)
                       }
                       className="p-2 border rounded dark:bg-neutral-800 w-full"
                     >
@@ -180,7 +162,7 @@ const EditRoutine = () => {
                     <label>Start Time</label>
 
                     <TimePicker
-                      format="HH:mm"
+                      format="h:mm A"
                       style={{ height: 40, width: "100%" }}
                       value={
                         schedule.startTime
@@ -202,7 +184,7 @@ const EditRoutine = () => {
                     <label>End Time</label>
 
                     <TimePicker
-                      format="HH:mm"
+                      format="h:mm A"
                       style={{ height: 40, width: "100%" }}
                       value={
                         schedule.endTime
@@ -246,9 +228,7 @@ const EditRoutine = () => {
               disabled={isUpdating}
               className="w-1/2 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
             >
-              {isUpdating && (
-                <Icon icon="eos-icons:loading" width="20" />
-              )}
+              {isUpdating && <Icon icon="eos-icons:loading" width="20" />}
               Update Routine
             </button>
           </div>

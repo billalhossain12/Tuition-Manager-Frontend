@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetMyRoutineQuery } from "../../../../redux/features/APIEndpoints/routinesApi/routinesApi";
+import dayjs from "dayjs";
 
 interface WeeklySchedule {
   day: string;
@@ -107,7 +108,7 @@ export default function ViewRoutine() {
                 </p>
 
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {schedule.startTime} - {schedule.endTime}
+                  {dayjs(schedule.startTime, "HH:mm").format("hh:mm A")} - {dayjs(schedule.endTime, "HH:mm").format("hh:mm A")}
                 </p>
               </div>
             ))}
