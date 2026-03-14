@@ -35,7 +35,6 @@ export default function AttendanceNoteModal({
       status,
       note,
     });
-    if (isAttending) return;
 
     setNote("");
     setStatus("present");

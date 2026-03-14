@@ -180,10 +180,7 @@ const Routines = () => {
                         <button
                           onClick={() => openAttendanceModal(routine)}
                           className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors mt-2"
-                          disabled={isAttending}
-                        >
-                          {isAttending ? "Processing..." : "Mark Attendance"}
-                        </button>
+                        ></button>
                       )}
                     </div>
                   );
