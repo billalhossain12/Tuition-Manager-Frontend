@@ -9,7 +9,11 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 import { logout, setUser } from "../features/APIEndpoints/authApi/authSlice";
-import { baseUrl } from "../../api/apiConstant";
+
+const baseUrl =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000/api/v1"
+    : "https://tuition-manager-server.vercel.app/api/v1";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: baseUrl,

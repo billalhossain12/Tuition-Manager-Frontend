@@ -121,7 +121,7 @@ const Routines = () => {
     <div className="min-h-screen bg-gray-100 dark:bg-black text-black dark:text-white">
       {/* ================= TODAY'S CLASSES ================= */}
 
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-900 rounded-xl shadow md:p-6 p-2">
         <h2 className="text-xl font-bold text-green-600 flex items-center gap-2 mb-6">
           <Icon icon="mdi:calendar-today" width="22" />
           Today's Classes ({today})
@@ -143,7 +143,7 @@ const Routines = () => {
                   return (
                     <div
                       key={index}
-                      className="border dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+                      className="border dark:border-gray-700 rounded-lg md:p-4 p-2 bg-gray-50 dark:bg-gray-800"
                     >
                       <p className="font-semibold text-lg dark:text-white">
                         {routine.studentId?.name || "Unknown"}
@@ -180,7 +180,7 @@ const Routines = () => {
                         <button
                           onClick={() => openAttendanceModal(routine)}
                           className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors mt-2"
-                        ></button>
+                        >Mark Attendance</button>
                       )}
                     </div>
                   );
@@ -204,7 +204,7 @@ const Routines = () => {
 
       {/* ================= WEEKLY ROUTINE ================= */}
 
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-900 rounded-xl shadow md:p-6 p-2">
         <h2 className="text-xl font-bold text-green-600 flex items-center gap-2 mb-6">
           <Icon icon="mdi:calendar-week" width="22" />
           Weekly Routine
@@ -219,7 +219,7 @@ const Routines = () => {
             return (
               <div
                 key={day}
-                className="border dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+                className="border dark:border-gray-700 rounded-lg md:p-4 p-2 bg-gray-50 dark:bg-gray-800"
               >
                 <h3 className="font-semibold text-green-600 mb-3">{day}</h3>
 
@@ -255,7 +255,7 @@ const Routines = () => {
 
       {/* ================= ALL ROUTINES ================= */}
 
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-900 rounded-xl shadow md:p-6 p-2">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-green-600 flex items-center gap-2">
             <Icon icon="mdi:format-list-bulleted" width="22" />

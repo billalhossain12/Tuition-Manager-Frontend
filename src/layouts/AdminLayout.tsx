@@ -17,7 +17,7 @@ export default function AdminLayout() {
 
       <AdminSidebar />
       <MobileSidebar setIsVisible={setIsVisible} isVisible={isVisible} />
-      <section className="mt-20 md:ml-60 bg-gray-50 dark:bg-gray-800 w-full p-5 rounded-md duration-300">
+      <section className="mt-20 md:ml-60 bg-gray-50 dark:bg-gray-800 w-full md:p-5 p-2 rounded-md duration-300">
         <Outlet />
       </section>
     </main>
