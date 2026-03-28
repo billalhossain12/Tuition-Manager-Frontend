@@ -28,7 +28,6 @@ export default function Attendance() {
   const [status, setStatus] = useState("");
 
   const { data, isLoading, isSuccess } = useGetMyAttendancesQuery(undefined);
-  console.log("Attendances=============> ", data);
 
   // 🔍 Search filter
   useEffect(() => {
